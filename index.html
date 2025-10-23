@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termodinámica: Ley Cero y Primera Ley</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%); 
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: pan-x pan-y;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px; 
+            width: 95%; 
+        }
+
+        .slide {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+            min-height: 100vh;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-content {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px; 
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            color: #FF4500;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #8B0000;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #8B0000;
+            padding-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #B22222;
+            font-size: 1.6em;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .intro-slide {
+            text-align: center;
+        }
+
+        .intro-slide h1 {
+            font-size: 4.5em;
+            background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            animation: heatPulse 2s infinite;
+        }
+
+        @keyframes heatPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .heat-icon {
+            font-size: 6em;
+            margin: 20px 0;
+            animation: spinHeat 3s linear infinite;
+        }
+
+        @keyframes spinHeat {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #gameCanvas {
+            border: 3px solid #FF4500;
+            border-radius: 10px;
+            display: block;
+            margin: 20px auto;
+            background: linear-gradient(to bottom, #1a0d0d, #4a1a1a); 
+            width: 100%; 
+            max-width: 100%;
+            height: 350px; 
+        }
+
+        .question-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            max-width: 700px;
+            width: 90%;
+            border: 3px solid #FFD700;
+        }
+
+        .question-modal h3 {
+            color: #FFD700;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .question-modal p {
+            color: white; 
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .question-modal.active {
+            display: block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+        
+        .answer-option {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            margin: 12px 0;
+            background: white;
+            border: 3px solid #FF4500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .answer-option:hover {
+            background: #ffe6e6;
+            border-color: #8B0000;
+            transform: translateX(10px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .flashcard {
+            background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);
+            border-radius: 25px;
+            padding: 45px;
+            margin: 30px 0;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.6s ease;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1500px;
+            border: 4px solid rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+
+        .flashcard::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+
+        .flashcard:hover::after {
+            left: 100%;
+        }
+        
+        .flashcard:nth-child(1) {
+            background: linear-gradient(135deg, #DC143C 0%, #FF6347 100%);
+        }
+        .flashcard:nth-child(2) {
+            background: linear-gradient(135deg, #FF4500 0%, #FFA500 100%);
+        }
+        .flashcard:nth-child(3) {
+            background: linear-gradient(135deg, #B22222 0%, #CD5C5C 100%);
+        }
+        .flashcard:nth-child(4) {
+            background: linear-gradient(135deg, #8B0000 0%, #DC143C 100%);
+        }
+        .flashcard:nth-child(5) {
+            background: linear-gradient(135deg, #FF6347 0%, #FFD700 100%);
+        }
+        .flashcard:nth-child(6) {
+            background: linear-gradient(135deg, #FF1493 0%, #FF4500 100%);
+        }
+
+        .flashcard:hover {
+            transform: translateY(-15px) scale(1.02) rotateX(5deg);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+        }
+
+        .flashcard.flipped {
+            animation: flipCard 0.8s ease-in-out;
+        }
+
+        @keyframes flipCard {
+            0% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.1); }
+            100% { transform: rotateY(360deg) scale(1); }
+        }
+
+        .flashcard.flipped .flashcard-front {
+            display: none;
+        }
+
+        .flashcard.flipped .flashcard-back {
+            display: block;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .flashcard-front, .flashcard-back {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+
+        .flashcard-front h3 {
+            color: white;
+            font-size: 2em;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            margin: 0;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .flashcard-back {
+            display: none;
+        }
+
+        .flashcard-back p {
+            color: white;
+            font-size: 1.3em;
+            line-height: 2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
+        }
+
+        .flashcard::before {
+            content: '🔥';
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2.5em;
+            opacity: 0.9;
+            animation: pulseFire 2s infinite;
+            z-index: 5;
+        }
+
+        @keyframes pulseFire {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .flashcard.flipped::before {
+            content: '✅';
+            color: #FFD700;
+            font-size: 3em;
+            animation: checkmark 0.5s ease-out;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(-45deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .quiz-question {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-question h4 {
+            color: #8B0000;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            color: #333;
+        }
+
+        .quiz-option:hover {
+            background: #ffe6e6;
+            border-color: #FF4500;
+        }
+
+        .quiz-option input {
+            margin-right: 10px;
+        }
+
+        .results-container {
+            text-align: center;
+        }
+
+        .score-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+        }
+
+        .score-card h3 {
+            color: #8B0000;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 3em;
+            color: #FF4500;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B0000, #FF4500);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .score-card[style*="background: linear-gradient"] {
+            background: linear-gradient(135deg, #FF4500 0%, #DC143C 100%) !important;
+            color: white !important;
+        }
+        .score-card[style*="background: linear-gradient"] h3, .score-card[style*="background: linear-gradient"] .score {
+            color: white !important;
+        }
+
+        .feedback-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 5px solid #8B0000;
+        }
+
+        .correct {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .incorrect {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .block-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .block-overlay.active {
+            display: flex;
+        }
+
+        .block-message {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 3px solid white;
+        }
+
+        .block-message h2 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .block-message p {
+            color: white;
+            font-size: 1.3em;
+            line-height: 1.8;
+        }
+
+        .warning-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            border: 3px solid white;
+            animation: shake 0.5s;
+        }
+
+        .warning-popup.active {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(-5deg); }
+            75% { transform: translate(-50%, -50%) rotate(5deg); }
+        }
+
+        .warning-popup h3 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .warning-popup p {
+            color: white;
+            font-size: 1.3em;
+            margin: 10px 0;
+        }
+
+        .interactive-question {
+            background: linear-gradient(135deg, #B22222 0%, #FF4500 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .interactive-question:hover {
+            background: linear-gradient(135deg, #FF4500 0%, #B22222 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .interactive-question h4 {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .interactive-question p {
+            color: white;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .question-prompt {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .question-icon {
+            font-size: 2em;
+            color: #FFD700;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .answer-hidden {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            animation: fadeInAnswer 0.5s ease;
+        }
+
+        .answer-shown {
+            display: block;
+        }
+
+        @keyframes fadeInAnswer {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .visual-diagram {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .diagram-box {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .visual-diagram .diagram-box[style*="background: #FFD700"] {
+            background: #FFD700 !important;
+            color: #333 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            text-shadow: none;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #8B0000;
+            margin: 0 10px;
+        }
+
+        .example-box {
+            background: #fff0f0;
+            border-left: 5px solid #8B0000;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .example-box h4 {
+            color: #8B0000;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em; 
+            }
+            h2 {
+                font-size: 1.5em; 
+            }
+            p {
+                font-size: 1em; 
+            }
+            .intro-slide h1 {
+                font-size: 3.5em; 
+            }
+            .heat-icon {
+                font-size: 4em; 
+            }
+            .nav-buttons button {
+                padding: 12px 20px;
+                font-size: 1em;
+                flex-grow: 1; 
+            }
+            .flashcard-front h3 {
+                font-size: 1.4em; 
+            }
+            .flashcard-back p {
+                font-size: 1em; 
+            }
+            .block-message {
+                padding: 30px;
+            }
+            .block-message h2 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slide active" id="slide0">
+            <div class="slide-content intro-slide">
+                <div class="heat-icon">🔥</div>
+                <h1 class="heat-text">TERMODINÁMICA: LEY CERO Y PRIMERA LEY</h1>
+                <p style="font-size: 1.5em; color: #8B0000;">Un Viaje al Mundo del Calor, la Energía y el Equilibrio Térmico</p>
+                <br>
+                <p style="font-size: 1.2em;">Prepárate para descubrir las leyes fundamentales que rigen la energía del universo</p>
+                <br>
+                <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                    <p style="font-size: 1.3em; color: #B22222; font-weight: bold;">👨‍🏫 Creado por:</p>
+                    <p style="font-size: 1.4em; color: #8B0000; font-weight: bold; margin: 10px 0;">Andrés Felipe López</p>
+                    <p style="font-size: 1.1em; color: #B22222;">Licenciado en Física y Programación</p>
+                </div>
+                <br>
+                <button onclick="nextSlide()" style="font-size: 1.3em; padding: 20px 40px;">
+                    ¡Comenzar el Viaje Termodinámico! 🌡️
+                </button>
+            </div>
+        </div>
+
+        <div class="slide" id="slideHistory">
+            <div class="slide-content">
+                <h2>📜 Historia de la Termodinámica: El Estudio del Calor</h2>
+                <p style="text-align: center; font-size: 1.3em; color: #8B0000; margin-bottom: 30px;">
+                    Cómo la humanidad descubrió las leyes fundamentales de la energía y el calor
+                </p>
+
+                <div style="background: linear-gradient(135deg, #DC143C 0%, #FF6347 100%); padding: 25px; border-radius: 20px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="font-size: 5em;">🌡️</div>
+                        <div style="flex: 1;">
+                            <h3 style="color: white; margin: 0;">Siglo XVII-XVIII: Los Primeros Pasos</h3>
+                            <p style="color: white; font-size: 1.1em; margin: 10px 0;">
+                                El Nacimiento del Concepto de Temperatura: Los científicos desarrollaron los primeros termómetros y comenzaron a entender que el <span style="font-weight: bold;">calor</span> era algo diferente a la temperatura. Se pensaba que el calor era un fluido invisible llamado <span style="font-weight: bold;">"calórico"</span>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #FF4500 0%, #FFA500 100%); padding: 25px; border-radius: 20px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="font-size: 5em;">⚙️</div>
+                        <div style="flex: 1;">
+                            <h3 style="color: white; margin: 0;">Siglo XIX: La Revolución Industrial</h3>
+                            <p style="color: white; font-size: 1.1em; margin: 10px 0;">
+                                Las Máquinas de Vapor y la Energía: La necesidad de hacer máquinas más eficientes llevó a científicos como <span style="font-weight: bold;">James Joule</span> a demostrar que el calor es una forma de <span style="font-weight: bold;">energía</span>, no un fluido. Esto sentó las bases para la Primera Ley.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #B22222 0%, #CD5C5C 100%); padding: 25px; border-radius: 20px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="font-size: 5em;">🔬</div>
+                        <div style="flex: 1;">
+                            <h3 style="color: white; margin: 0;">Las Leyes de la Termodinámica</h3>
+                            <p style="color: white; font-size: 1.1em; margin: 10px 0;">
+                                <span style="font-weight: bold;">Ley Cero</span>: Si dos sistemas están en equilibrio térmico con un tercero, están en equilibrio entre sí. <span style="font-weight: bold;">Primera Ley</span>: La energía no se crea ni se destruye, solo se transforma. ΔU = Q - W. ¡Estas leyes cambiaron para siempre nuestra comprensión del universo!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide1">
+            <div class="slide-content">
+                <h2>❄️🔥 La Ley Cero: El Equilibrio Térmico</h2>
+                
+                <p style="font-size: 1.2em;">La Ley Cero de la Termodinámica es fundamental para definir la <span style="font-weight: bold;">temperatura</span>. Establece que si dos sistemas están en <span style="font-weight: bold;">equilibrio térmico</span> con un tercer sistema, entonces están en equilibrio térmico entre sí.</p>
+
+                <div class="visual-diagram">
+                    <h3 style="color: #8B0000;">El Concepto de Equilibrio - Explicado Fácil</h3>
+                    <p style="color: #333; font-size: 1.2em; margin: 20px 0;">
+                        Imagina que tienes una taza de té caliente (A) y otra taza de té (B). Usas el mismo termómetro (C) para medir ambas. Si el termómetro marca 70°C en ambas tazas, significa que las dos tazas tienen la misma temperatura. ¡Ese es el equilibrio térmico!
+                    </p>
+                    <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #FF4500 0%, #FFA500 100%);">Sistema A</div>
+                        <span class="arrow">⟷</span>
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #8B0000 0%, #DC143C 100%);">Termómetro (C)</div>
+                        <span class="arrow">⟷</span>
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #FF4500 0%, #FFA500 100%);">Sistema B</div>
+                    </div>
+                    <p style="margin-top: 15px; color: #8B0000; font-size: 1.1em;">Si A y B están en equilibrio con C, entonces A y B tienen la misma temperatura</p>
+                </div>
+
+                <div class="interactive-question" onclick="toggleAnswer(this)">
+                    <div class="question-prompt">
+                        <span class="question-icon">🌡️</span>
+                        <h4>¿Qué significa "estar en equilibrio térmico"?</h4>
+                    </div>
+                    <div class="answer-hidden">
+                        <p>Explicación Simple: Dos objetos están en <span style="font-weight: bold;">equilibrio térmico</span> cuando tienen la <span style="font-weight: bold;">misma temperatura</span> y ya no hay flujo neto de calor entre ellos. <br><br>Ejemplo Práctico: Cuando pones un termómetro bajo tu lengua, al principio el termómetro está más frío que tú. Después de unos minutos, el termómetro y tu boca alcanzan la misma temperatura. ¡Ya están en equilibrio térmico! Por eso el termómetro puede medir tu temperatura correctamente.</p>
+                    </div>
+                </div>
+
+                <h3>Importancia de la Ley Cero</h3>
+                
+                <p>1. Define la Temperatura: La Ley Cero nos permite definir rigurosamente qué es la temperatura. Dos objetos tienen la misma temperatura si están en equilibrio térmico.</p>
+
+                <p>2. Permite la Medición: Gracias a esta ley, podemos usar termómetros para medir temperatura. El termómetro alcanza equilibrio con el objeto y nos indica su temperatura.</p>
+
+                <p>3. Transitividad Térmica: Es una propiedad transitiva: si A = C y B = C, entonces A = B. ¡Parece obvio, pero es fundamental!</p>
+
+                <div class="example-box" style="border-left: 5px solid #FF4500; background: #fff0f0;">
+                    <h4>🏠 Ejemplo Cotidiano: La Casa en Invierno</h4>
+                    <p style="color: #333;">Imagina que entras a tu casa en invierno. Inicialmente, el aire de la casa y los muebles pueden tener diferentes temperaturas. Con el tiempo, todo alcanza la <span style="font-weight: bold;">misma temperatura</span> (equilibrio térmico). Si usas un termómetro, este alcanzará equilibrio con el aire y te dirá la temperatura de la habitación.</p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide2">
+            <div class="slide-content">
+                <h2>⚡ La Primera Ley: Conservación de la Energía</h2>
+                
+                <p style="font-size: 1.2em;">La Primera Ley de la Termodinámica es una expresión del principio de <span style="font-weight: bold;">conservación de la energía</span>: la energía no se crea ni se destruye, solo se transforma de una forma a otra.</p>
+
+                <div class="visual-diagram">
+                    <h3 style="color: #B22222;">La Ecuación de la Primera Ley - Explicada Paso a Paso</h3>
+                    <div style="margin: 20px 0; padding: 30px; background: #fff0f0; border-radius: 15px;">
+                        <p style="font-size: 2.5em; color: #8B0000; font-weight: bold; text-align: center;">ΔU = Q - W</p>
+                        <p style="color: #333; margin-top: 20px; font-size: 1.2em;"><span style="font-weight: bold;">¿Qué significa cada letra?</span></p>
+                        <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">ΔU</span> (Delta U) = <span style="color: #FF4500; font-weight: bold;">Cambio en la energía interna</span> del sistema. Es cuánta energía tiene guardada el sistema (relacionada con la temperatura y movimiento de las moléculas)</p>
+                        <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">Q</span> (Calor) = <span style="color: #FF4500; font-weight: bold;">Calor agregado AL sistema</span>. Es la energía térmica que entra o sale</p>
+                        <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">W</span> (Trabajo) = <span style="color: #FF4500; font-weight: bold;">Trabajo realizado POR el sistema</span>. Es la energía que el sistema usa para empujar, mover o expandirse</p>
+                    </div>
+                </div>
+
+                <div class="interactive-question" onclick="toggleAnswer(this)">
+                    <div class="question-prompt">
+                        <span class="question-icon">🔥</span>
+                        <h4>¿Cómo interpretar la ecuación ΔU = Q - W?</h4>
+                    </div>
+                    <div class="answer-hidden">
+                        <p style="font-size: 1.2em;"><span style="font-weight: bold;">Interpretación Simple:</span><br><br>
+                        
+                        La ecuación dice: <span style="color: #FF4500; font-weight: bold;">"El cambio de energía interna (ΔU) es igual al calor que entra (Q) menos el trabajo que sale (W)"</span><br><br>
+                        
+                        Ejemplo: Calientas agua en una olla con tapa. Le das 1000 J de calor (Q = 1000 J). El vapor empuja la tapa hacia arriba realizando 200 J de trabajo (W = 200 J). ¿Cuánto aumentó la energía interna del agua?<br><br>
+                        
+                        ΔU = Q - W = 1000 - 200 = 800 J<br><br>
+                        
+                        Los 800 J restantes se quedaron en el agua, aumentando su temperatura. ¡La energía se conservó!</p>
+                    </div>
+                </div>
+
+                <div class="interactive-question" onclick="toggleAnswer(this)">
+                    <div class="question-prompt">
+                        <span class="question-icon">💪</span>
+                        <h4>¿Qué pasa si W es negativo?</h4>
+                    </div>
+                    <div class="answer-hidden">
+                        <p style="font-size: 1.2em;">¡Excelente pregunta!<br><br>
+                        
+                        Si W es <span style="font-weight: bold;">negativo</span>, significa que el <span style="color: #FF4500; font-weight: bold;">trabajo se hizo SOBRE el sistema</span> (no por el sistema).<br><br>
+                        
+                        Ejemplo: Comprimes un gas con un pistón. TÚ haces trabajo sobre el gas (W es negativo). La ecuación se vuelve:<br><br>
+                        
+                        ΔU = Q - (-W) = Q + W<br><br>
+                        
+                        Tanto el calor (si hay) COMO el trabajo de compresión aumentan la energía interna. ¡Por eso el gas se calienta cuando lo comprimes!</p>
+                    </div>
+                </div>
+
+                <div class="example-box" style="border-left: 5px solid #FF4500; background: #fff0f0;">
+                    <h4>🚗 Aplicación: El Motor de un Automóvil</h4>
+                    <p style="color: #333;">En el motor de combustión:<br>
+                    • El combustible se quema generando <span style="font-weight: bold;">calor Q</span> (energía química → calor)<br>
+                    • Este calor expande los gases que mueven los pistones = <span style="font-weight: bold;">trabajo W</span><br>
+                    • La diferencia (Q - W) se queda como energía interna en el motor (por eso se calienta)<br><br>
+                    ¡La Primera Ley gobierna la eficiencia de todos los motores!</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide3">
+            <div class="slide-content">
+                <h2>🔄 Procesos Termodinámicos: Los 4 Tipos Importantes</h2>
+                
+                <p style="font-size: 1.2em;">La Primera Ley (ΔU = Q - W) se aplica de formas diferentes dependiendo del tipo de <span style="font-weight: bold;">proceso</span> que ocurra. Vamos a entender los 4 procesos principales de forma simple:</p>
+
+                <h3>1. Proceso ISOTÉRMICO (Temperatura Constante) 🌡️</h3>
+                
+                <div class="example-box" style="border-left: 5px solid #DC143C; background: #fff0f0;">
+                    <h4>¿Qué significa ISOTÉRMICO?</h4>
+                    <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">ISO</span> = igual, <span style="font-weight: bold;">TÉRMICO</span> = temperatura. Entonces, isotérmico = <span style="color: #FF4500; font-weight: bold;">temperatura constante durante todo el proceso</span>.<br><br>
+                    
+                    <span style="font-weight: bold;">¿Qué pasa con la ecuación?</span><br>
+                    Si la temperatura no cambia, la energía interna tampoco cambia (para gases ideales): <span style="font-weight: bold;">ΔU = 0</span><br><br>
+                    
+                    Entonces: 0 = Q - W, lo que significa <span style="color: #FF4500; font-weight: bold;">Q = W</span><br><br>
+                    
+                    <span style="font-weight: bold;">Conclusión:</span> Todo el calor que entra se convierte en trabajo, o todo el trabajo se convierte en calor.<br><br>
+                    
+                    <span style="font-weight: bold;">Ejemplo de la vida real:</span> Un gas que se expande muy lentamente en contacto con un baño térmico (como una olla de agua hirviendo). El gas mantiene la misma temperatura porque el baño le da o quita calor según necesite.</p>
+                </div>
+
+                <h3>2. Proceso ADIABÁTICO (Sin Intercambio de Calor) 🚫🔥</h3>
+                
+                <div class="example-box" style="border-left: 5px solid #FF4500; background: #fff0f0;">
+                    <h4>¿Qué significa ADIABÁTICO?</h4>
+                    <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">ADIABÁTICO</span> significa que <span style="color: #FF4500; font-weight: bold;">NO hay transferencia de calor</span>. El sistema está aislado térmicamente (como un termo).<br><br>
+                    
+                    <span style="font-weight: bold;">¿Qué pasa con la ecuación?</span><br>
+                    Como Q = 0, entonces: <span style="font-weight: bold;">ΔU = -W</span><br><br>
+                    
+                    <span style="font-weight: bold;">Caso 1: Comprimir un gas adiabáticamente</span><br>
+                    • Haces trabajo SOBRE el gas (W es negativo)<br>
+                    • ΔU = -(-W) = +W (¡la energía interna aumenta!)<br>
+                    • Resultado: <span style="color: #FF4500; font-weight: bold;">El gas se CALIENTA</span> aunque no le agregaste calor<br><br>
+                    
+                    <span style="font-weight: bold;">Caso 2: Expandir un gas adiabáticamente</span><br>
+                    • El gas hace trabajo (W es positivo)<br>
+                    • ΔU = -W (¡la energía interna disminuye!)<br>
+                    • Resultado: <span style="color: #FF4500; font-weight: bold;">El gas se ENFRÍA</span><br><br>
+                    
+                    <span style="font-weight: bold;">Ejemplo de la vida real:</span> Cuando inflas una llanta de bicicleta rápidamente, la bomba se calienta. Eso es porque comprimes el aire tan rápido que no da tiempo de intercambiar calor (proceso casi adiabático). ¡Toda la energía de tu trabajo se convierte en calor!</p>
+                </div>
+
+                <h3>3. Proceso ISOCÓRICO (Volumen Constante) 📦</h3>
+                
+                <div class="example-box" style="border-left: 5px solid #B22222; background: #fff0f0;">
+                    <h4>¿Qué significa ISOCÓRICO?</h4>
+                    <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">ISO</span> = igual, <span style="font-weight: bold;">CÓRICO</span> = volumen. Entonces, isocórico = <span style="color: #FF4500; font-weight: bold;">volumen constante</span>.<br><br>
+                    
+                    <span style="font-weight: bold;">¿Qué pasa con la ecuación?</span><br>
+                    Si el volumen no cambia, el sistema no se expande ni se comprime: <span style="font-weight: bold;">W = 0</span><br><br>
+                    
+                    Entonces: ΔU = Q - 0, lo que significa <span style="color: #FF4500; font-weight: bold;">ΔU = Q</span><br><br>
+                    
+                    <span style="font-weight: bold;">Conclusión:</span> Todo el calor que agregas va directo a cambiar la energía interna (temperatura).<br><br>
+                    
+                    <span style="font-weight: bold;">Ejemplo de la vida real:</span> Calientas gas encerrado en un recipiente rígido (que no puede expandirse). Todo el calor aumenta la temperatura del gas. No hay trabajo porque no hay movimiento.</p>
+                </div>
+
+                <h3>4. Proceso ISOBÁRICO (Presión Constante) ⚖️</h3>
+                
+                <div class="example-box" style="border-left: 5px solid #8B0000; background: #fff0f0;">
+                    <h4>¿Qué significa ISOBÁRICO?</h4>
+                    <p style="color: #333; font-size: 1.1em;"><span style="font-weight: bold;">ISO</span> = igual, <span style="font-weight: bold;">BÁRICO</span> = presión. Entonces, isobárico = <span style="color: #FF4500; font-weight: bold;">presión constante</span>.<br><br>
+                    
+                    <span style="font-weight: bold;">¿Qué pasa con la ecuación?</span><br>
+                    La ecuación completa sigue siendo: <span style="font-weight: bold;">ΔU = Q - W</span><br>
+                    Pero el trabajo se puede calcular como: W = P × ΔV (presión por cambio de volumen)<br><br>
+                    
+                    <span style="font-weight: bold;">Ejemplo de la vida real:</span> Calentar agua en una olla abierta. La presión es constante (la de la atmósfera), pero el agua se expande un poco. Parte del calor aumenta la temperatura (ΔU) y parte se usa para expandirse (W).</p>
+                </div>
+
+                <div class="visual-diagram">
+                    <h3 style="color: #8B0000;">Resumen Visual de los 4 Procesos</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #DC143C 0%, #FF6347 100%);">
+                            <strong>ISOTÉRMICO</strong><br>T constante<br>ΔU = 0<br>Q = W
+                        </div>
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #FF4500 0%, #FFA500 100%);">
+                            <strong>ADIABÁTICO</strong><br>Q = 0<br>ΔU = -W
+                        </div>
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #B22222 0%, #CD5C5C 100%);">
+                            <strong>ISOCÓRICO</strong><br>V constante<br>W = 0<br>ΔU = Q
+                        </div>
+                        <div class="diagram-box" style="background: linear-gradient(135deg, #8B0000 0%, #DC143C 100%);">
+                            <strong>ISOBÁRICO</strong><br>P constante<br>W = PΔV
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide4">
+            <div class="slide-content">
+                <h2>✨ Tarjetas de Repaso Rápido</h2>
+                <p style="text-align: center; font-size: 1.3em; color: #8B0000;">Haz clic en cada tarjeta para descubrir la respuesta. ¡Toma nota!</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>¿Qué establece la Ley Cero de la Termodinámica?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: Si dos sistemas (A y B) están en <span style="font-weight: bold;">equilibrio térmico</span> con un tercer sistema (C), entonces A y B están en equilibrio térmico entre sí. Esto nos permite definir la <span style="font-weight: bold;">temperatura</span> de forma rigurosa y usar termómetros.</p>
+                        </div>
+                    </div>
+
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>¿Qué representa la fórmula ΔU = Q - W?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: Es la <span style="font-weight: bold;">Primera Ley de la Termodinámica</span>. El cambio en la energía interna (ΔU) es igual al calor agregado (Q) menos el trabajo realizado POR el sistema (W). ¡Es la conservación de la energía en acción!</p>
+                        </div>
+                    </div>
+
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>¿Qué es un proceso adiabático?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: Es un proceso donde <span style="font-weight: bold;">NO hay intercambio de calor</span> (Q = 0). Si comprimes un gas adiabáticamente, se calienta porque ΔU = -W. Si se expande, se enfría. Ejemplo: inflar una llanta rápidamente.</p>
+                        </div>
+                    </div>
+
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>¿Qué significa que un proceso sea isotérmico?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: Ocurre a <span style="font-weight: bold;">temperatura constante</span>. Para un gas ideal, ΔU = 0, por lo que Q = W. Todo el calor que entra se convierte en trabajo, o viceversa. Ejemplo: gas expandiéndose en un baño térmico.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>¿Qué es la energía interna (U)?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: Es la <span style="font-weight: bold;">energía total</span> contenida en un sistema, que incluye la energía cinética de las moléculas (relacionada con temperatura) y la energía potencial de sus interacciones. ¡Es toda la energía "guardada" en el sistema!</p>
+                        </div>
+                    </div>
+
+                    <div class="flashcard" onclick="flipCard(this)">
+                        <div class="flashcard-front">
+                            <h3>En un proceso isocórico, ¿qué se mantiene constante?</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>Respuesta: El <span style="font-weight: bold;">volumen</span> se mantiene constante. Como no hay cambio de volumen, no se realiza trabajo (W = 0). Entonces ΔU = Q. Todo el calor va directo a cambiar la temperatura del sistema.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide6">
+            <div class="slide-content">
+                <h2>🎮 Desafío de la Partícula Térmica</h2>
+                <p style="text-align: center; font-size: 1.2em;">¡Ayuda a la partícula de calor a navegar por el campo termodinámico! Esquiva las barreras de energía.</p>
+                <p style="text-align: center;">Cada colisión = 1 pregunta sobre Termodinámica. ¡Completa las 10 preguntas en 2 intentos!</p>
+                
+                <canvas id="gameCanvas"></canvas>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="startGame()" id="startGameBtn">🎮 Iniciar Juego - Intento 1</button>
+                    <button onclick="startGame()" id="restartGameBtn" style="display: none;">🔄 Segundo Intento</button>
+                    <p style="margin-top: 10px; font-size: 1.1em;">Intento actual: <span id="attemptNumber">1</span>/2</p>
+                    <p>Colisiones: <span id="livesLost">0</span> | Preguntas respondidas: <span id="questionsAnswered">0</span>/10</p>
+                    <p>Puntuación: <span id="gameScore">0</span> | Nivel de dificultad: <span id="difficultyDisplay">1</span></p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()" id="nextAfterGame" style="display: none;">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overlay" id="questionOverlay"></div>
+        <div class="question-modal" id="questionModal">
+            <h3 id="questionTitle">Pregunta</h3>
+            <p id="questionText"></p>
+            <div id="questionOptions"></div>
+        </div>
+
+        <div class="slide" id="slide7">
+            <div class="slide-content">
+                <h2>📊 Retroalimentación del Desafío</h2>
+                <div id="gameFeedback"></div>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide8">
+            <div class="slide-content">
+                <h2>🔍 Conceptos Finales de Repaso</h2>
+                <p style="text-align: center; font-size: 1.3em; color: #B22222;">Repasa estos conceptos clave antes del examen final.</p>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="flashcard-front">
+                        <h3>¿Cómo funciona un termómetro según la Ley Cero?</h3>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Respuesta: El termómetro alcanza <span style="font-weight: bold;">equilibrio térmico</span> con el objeto que estás midiendo. Cuando ambos tienen la misma temperatura (están en equilibrio), el termómetro indica esa temperatura. La Ley Cero garantiza que esta medición sea válida.</p>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="flashcard-front">
+                        <h3>Si comprimo un gas muy rápido sin que escape calor, ¿qué pasa?</h3>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Respuesta: La temperatura <span style="font-weight: bold;">AUMENTA</span>. Esto es un proceso adiabático (Q = 0). Como haces trabajo SOBRE el gas (W negativo), entonces ΔU = -W es positivo. Toda esa energía de compresión se convierte en energía interna, aumentando la temperatura.</p>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="flashcard-front">
+                        <h3>¿Por qué los motores no convierten todo el calor en trabajo útil?</h3>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Respuesta: Aunque la Primera Ley dice que la energía se conserva, no dice que todas las conversiones sean 100% eficientes. Parte del calor siempre queda como energía interna (calentando el motor). Por eso necesitan sistemas de enfriamiento.</p>
+                    </div>
+                </div>
+
+                <div class="flashcard" onclick="flipCard(this)">
+                    <div class="flashcard-front">
+                        <h3>¿Qué significa que W sea negativo en ΔU = Q - W?</h3>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Respuesta: Si W es negativo, significa que el <span style="font-weight: bold;">entorno hizo trabajo SOBRE el sistema</span> (como comprimir un gas). La ecuación se vuelve ΔU = Q + |W|, indicando que tanto el calor como el trabajo aumentan la energía interna.</p>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                    <button onclick="nextSlide()">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide9">
+            <div class="slide-content">
+                <h2>🎯 Cuestionario Final: Termodinámica</h2>
+                <p style="text-align: center; font-size: 1.2em;">¡Demuestra tu comprensión de la Ley Cero y Primera Ley!</p>
+                
+                <div id="quizContainer"></div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button onclick="submitQuiz()" id="submitQuizBtn" style="font-size: 1.2em; padding: 15px 40px;">
+                        📝 Enviar Respuestas
+                    </button>
+                </div>
+
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Anterior</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide10">
+            <div class="slide-content results-container">
+                <h1>🏆 ¡Resultados Finales!</h1>
+                
+                <div class="score-card" id="studentInfoCard">
+                    <h3>📋 Información del Estudiante</h3>
+                    <p id="studentNameDisplay" style="font-size: 1.2em; color: #333; margin: 10px 0;"></p>
+                    <p id="studentCourseDisplay" style="font-size: 1.1em; color: #333; margin: 10px 0;"></p>
+                    <p id="studentSchoolDisplay" style="font-size: 1.1em; color: #333; margin: 10px 0;"></p>
+                </div>
+
+                <div class="score-card">
+                    <h3>🎮 Intento 1 del Juego</h3>
+                    <div class="score" id="finalGameScore1">0/10</div>
+                    <p id="finalGamePoints1" style="font-size: 1.1em; color: #8B0000;">0 puntos</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="gameProgress1" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <div class="score-card">
+                    <h3>🎮 Intento 2 del Juego</h3>
+                    <div class="score" id="finalGameScore2">0/10</div>
+                    <p id="finalGamePoints2" style="font-size: 1.1em; color: #8B0000;">0 puntos</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="gameProgress2" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <div class="score-card">
+                    <h3>📝 Puntuación del Cuestionario</h3>
+                    <div class="score" id="finalQuizScore">0/20</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quizProgress" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <div class="score-card" style="background: linear-gradient(135deg, #FF4500 0%, #DC143C 100%); color: white;">
+                    <h3 style="color: white;">✨ Puntuación Total</h3>
+                    <div class="score" style="color: white;" id="totalScore">0</div>
+                    <p id="finalMessage" style="color: white; font-size: 1.2em;"></p>
+                </div>
+
+                <div id="quizFeedback" style="margin-top: 40px;">
+                    <h3 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 10px; margin-bottom: 20px;">
+                        📝 Retroalimentación del Cuestionario
+                    </h3>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: rgba(255, 69, 0, 0.1); border: 2px dashed #FF4500; border-radius: 15px;">
+                    <h3 style="color: #DC143C; text-align: center;">📸 INSTRUCCIÓN IMPORTANTE</h3>
+                    <p style="text-align: center; font-size: 1.1em; color: #8B0000;">
+                        Por favor, toma un **PANTALLAZO** (captura de pantalla) de estos resultados ANTES de hacer clic en el botón de abajo. Adjunta el pantallazo al correo.
+                    </p>
+                </div>
+
+                <button onclick="sendResultsByEmail()" style="margin-top: 20px; font-size: 1.2em; padding: 20px;">📧 Enviar Resultados por Correo</button>
+            </div>
+        </div>
+
+        <div class="block-overlay" id="blockOverlay">
+            <div class="block-message">
+                <h2>🚫 EVALUACIÓN BLOQUEADA</h2>
+                <p>Has salido de la página más de 2 veces.</p>
+                <p><strong>La evaluación ha sido invalidada.</strong></p>
+                <p>Por favor, Llámeme que ahí estoy y la nota baja mucho :(.</p>
+                <p style="margin-top: 30px; font-size: 1em; opacity: 0.8;">
+                    Salidas detectadas: <span id="finalExitCount">0</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="warning-popup" id="warningPopup">
+            <h3>⚠️ ADVERTENCIA</h3>
+            <p id="warningText"></p>
+            <p id="remainingExits"></p>
+        </div>
+        
+    </div>
+
+    <script>
+        window.studentName = 'Estudiante Anónimo';
+        window.studentCourse = 'Curso Desconocido';
+        window.studentAge = 'N/A';
+        window.studentSchool = 'Institución Desconocida';
+
+        function updateStudentInfoOnResults() {
+            const name = prompt("Por favor, introduce tu Nombre Completo para los resultados:");
+            const course = prompt("Introduce tu Curso/Grado para los resultados:");
+            const school = prompt("Introduce tu Institución Educativa para los resultados:");
+
+            window.studentName = name || 'Estudiante Anónimo';
+            window.studentCourse = course || 'Curso Desconocido';
+            window.studentSchool = school || 'Institución Desconocida';
+
+            document.getElementById('studentNameDisplay').textContent = `Nombre: ${window.studentName}`;
+            document.getElementById('studentCourseDisplay').textContent = `Curso: ${window.studentCourse}`;
+            document.getElementById('studentSchoolDisplay').textContent = `Colegio: ${window.studentSchool}`;
+        }
+
+        let canvas, ctx;
+        let bird = { x: 100, y: 200, velocity: 0, radius: 20 };
+        let pipes = [];
+        let gameScore = 0;
+        let gameActive = false;
+        let frameCount = 0;
+        let gameAnswers = [];
+        let currentQuestionIndex = 0;
+        let gameStarted = false;
+        let livesLost = 0;
+        let pipesPassed = 0;
+        let waitingForQuestion = false;
+        let attemptNumber = 1;
+        let attempt1Results = null;
+        let attempt2Results = null;
+        let difficultyLevel = 1;
+        let pipeSpeed = 3;
+        let pipeGap = 155; 
+
+        // 10 preguntas del juego - TERMODINÁMICA (ORIGINALES)
+        const gameQuestionsBank = [
+            {
+                question: "Si dos objetos A y B están en equilibrio térmico con un objeto C, según la Ley Cero:",
+                options: ["A y B tienen diferente temperatura", "A y B necesitan tocarse para tener la misma temperatura", "A y B están en equilibrio térmico entre sí", "Solo C tiene una temperatura definida"],
+                correct: 2
+            },
+            {
+                question: "En la fórmula ΔU = Q - W, ¿qué representa W?",
+                options: ["Calor perdido al ambiente", "Trabajo realizado POR el sistema", "Temperatura del sistema", "Cambio de volumen"],
+                correct: 1
+            },
+            {
+                question: "Un proceso adiabático se caracteriza porque:",
+                options: ["La temperatura permanece constante", "No hay transferencia de calor (Q = 0)", "El volumen no cambia", "La presión es constante"],
+                correct: 1
+            },
+            {
+                question: "¿Qué principio fundamental expresa la Primera Ley de la Termodinámica?",
+                options: ["La temperatura tiende al equilibrio", "La energía se conserva (no se crea ni se destruye)", "El calor siempre fluye de caliente a frío", "Los gases se expanden al calentarse"],
+                correct: 1
+            },
+            {
+                question: "Si comprimo rápidamente un gas sin que escape calor (proceso adiabático), su temperatura:",
+                options: ["Disminuye porque el gas pierde energía", "Permanece constante", "Aumenta porque ΔU = -W", "Depende del tipo de gas"],
+                correct: 2
+            },
+            {
+                question: "En un proceso isotérmico para un gas ideal, el cambio de energía interna (ΔU) es:",
+                options: ["Máximo", "Igual al trabajo realizado", "Cero, porque la temperatura no cambia", "Negativo siempre"],
+                correct: 2
+            },
+            {
+                question: "¿Qué es la energía interna (U) de un sistema?",
+                options: ["Solo la energía cinética de las moléculas", "La energía total contenida, incluyendo cinética y potencial molecular", "El calor transferido al sistema", "La temperatura multiplicada por el volumen"],
+                correct: 1
+            },
+            {
+                question: "La Ley Cero de la Termodinámica es fundamental porque:",
+                options: ["Define qué es la temperatura y permite medirla", "Explica por qué los objetos se calientan", "Determina la dirección del flujo de calor", "Establece que la energía se conserva"],
+                correct: 0
+            },
+            {
+                question: "Si Q (calor agregado) es positivo y W (trabajo realizado por el sistema) también es positivo, entonces ΔU:",
+                options: ["Siempre es cero", "Puede ser positivo, negativo o cero dependiendo de las magnitudes", "Es siempre negativo", "Es igual a Q + W"],
+                correct: 1
+            },
+            {
+                question: "Un refrigerador transfiere calor de un lugar frío a uno caliente. ¿Viola esto la Primera Ley?",
+                options: ["Sí, porque el calor no puede fluir de frío a caliente", "No, porque consume trabajo (energía eléctrica) para hacerlo", "Sí, porque crea energía extra", "No, porque la Primera Ley no aplica a refrigeradores"],
+                correct: 1
+            }
+        ];
+        
+        let gameQuestions = [];
+        
+        // 20 preguntas del cuestionario final - TERMODINÁMICA (ORIGINALES)
+        const quizQuestions = [
+            {
+                question: "Dos bloques de metal (A y B) están a diferente temperatura inicialmente. Se ponen en contacto y se espera. Cuando ya no hay flujo de calor entre ellos, se puede afirmar que:",
+                options: [
+                    "Ambos tienen la misma cantidad de calor",
+                    "Ambos tienen la misma energía interna",
+                    "Ambos están en equilibrio térmico y tienen la misma temperatura",
+                    "El bloque más grande tiene mayor temperatura"
+                ],
+                correct: 2
+            },
+            {
+                question: "Un termómetro de mercurio se coloca en un vaso con agua caliente. Después de un tiempo, el mercurio deja de subir. Esto ocurre porque:",
+                options: [
+                    "El mercurio alcanzó su temperatura máxima",
+                    "El termómetro y el agua alcanzaron equilibrio térmico (misma temperatura)",
+                    "El agua perdió todo su calor",
+                    "La presión del mercurio se equilibró"
+                ],
+                correct: 1
+            },
+            {
+                question: "La Primera Ley de la Termodinámica (ΔU = Q - W) establece que:",
+                options: [
+                    "El calor siempre produce trabajo",
+                    "La energía total de un sistema aislado se conserva",
+                    "La temperatura siempre aumenta cuando se agrega calor",
+                    "El trabajo mecánico no puede convertirse en calor"
+                ],
+                correct: 1
+            },
+            {
+                question: "Si se agrega 500 J de calor a un gas y éste realiza 200 J de trabajo expandiéndose, ¿cuál es el cambio en su energía interna?",
+                options: [
+                    "700 J (aumenta)",
+                    "300 J (aumenta)",
+                    "200 J (disminuye)",
+                    "500 J (no cambia)"
+                ],
+                correct: 1
+            },
+            {
+                question: "Un gas encerrado en un cilindro con pistón móvil se calienta. El gas se expande empujando el pistón hacia arriba. En este proceso:",
+                options: [
+                    "Todo el calor agregado se convierte en energía interna",
+                    "Parte del calor se usa para realizar trabajo (empujar el pistón) y parte aumenta la temperatura",
+                    "El gas pierde energía porque realiza trabajo",
+                    "La energía interna disminuye aunque se agregue calor"
+                ],
+                correct: 1
+            },
+            {
+                question: "En un proceso adiabático sobre un gas, NO hay transferencia de calor (Q = 0). Si comprimo el gas (hago trabajo sobre él, W negativo), entonces:",
+                options: [
+                    "La temperatura del gas disminuye",
+                    "La energía interna permanece constante",
+                    "La temperatura del gas aumenta porque ΔU = -W es positivo",
+                    "El gas pierde presión"
+                ],
+                correct: 2
+            },
+            {
+                question: "Un proceso isotérmico ocurre cuando:",
+                options: [
+                    "El volumen del sistema no cambia",
+                    "La presión permanece constante",
+                    "La temperatura permanece constante durante todo el proceso",
+                    "No se realiza trabajo alguno"
+                ],
+                correct: 2
+            },
+            {
+                question: "Para un gas ideal en un proceso isotérmico (temperatura constante), la energía interna:",
+                options: [
+                    "Aumenta proporcionalmente al calor agregado",
+                    "No cambia (ΔU = 0) porque U solo depende de la temperatura",
+                    "Disminuye si el gas se expande",
+                    "Es igual al trabajo realizado"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Por qué es imposible construir una máquina que convierta TODO el calor que recibe en trabajo útil sin perder nada?",
+                options: [
+                    "Porque la Primera Ley lo prohíbe",
+                    "Porque siempre se pierde algo de calor al ambiente (relacionado con la Segunda Ley)",
+                    "Porque el trabajo no puede generarse a partir de calor",
+                    "Porque la energía interna siempre debe aumentar"
+                ],
+                correct: 1
+            },
+            {
+                question: "Si meto mi mano en agua a 40°C y un termómetro marca 40°C en esa agua, puedo afirmar que:",
+                options: [
+                    "Mi mano tiene exactamente 40°C en todas sus partes",
+                    "Mi mano y el agua están en equilibrio térmico aproximado (Ley Cero)",
+                    "El termómetro está midiendo el calor del agua",
+                    "La energía interna de mi mano es igual a la del agua"
+                ],
+                correct: 1
+            },
+            {
+                question: "La energía interna de un sistema incluye:",
+                options: [
+                    "Solo el calor que ha recibido el sistema",
+                    "Solo la energía cinética de las moléculas",
+                    "La energía cinética y potencial de todas las partículas del sistema",
+                    "Únicamente la temperatura multiplicada por la masa"
+                ],
+                correct: 2
+            },
+            {
+                question: "Un gas ideal se expande isotérmicamente (a temperatura constante). Durante esta expansión:",
+                options: [
+                    "No se necesita agregar calor porque la temperatura es constante",
+                    "El gas absorbe calor que se convierte completamente en trabajo (Q = W)",
+                    "La energía interna aumenta",
+                    "No se realiza trabajo porque la temperatura no cambia"
+                ],
+                correct: 1
+            },
+            {
+                question: "Si un sistema NO realiza trabajo (W = 0), entonces según la Primera Ley:",
+                options: [
+                    "No puede absorber calor",
+                    "Todo el calor agregado aumenta la energía interna (ΔU = Q)",
+                    "La temperatura permanece constante",
+                    "El sistema debe estar en equilibrio térmico"
+                ],
+                correct: 1
+            },
+            {
+                question: "Un motor de combustión interna quema gasolina (genera calor Q), mueve pistones (realiza trabajo W) y se calienta. La Primera Ley indica que:",
+                options: [
+                    "Toda la energía del combustible se convierte en movimiento",
+                    "La diferencia entre el calor generado y el trabajo realizado aumenta la energía interna del motor",
+                    "El motor no puede funcionar porque violaría la conservación de energía",
+                    "El trabajo realizado es siempre mayor que el calor generado"
+                ],
+                correct: 1
+            },
+            {
+                question: "En un proceso isocórico (volumen constante), el gas NO puede expandirse ni comprimirse. Por lo tanto:",
+                options: [
+                    "No se puede agregar calor al gas",
+                    "El trabajo realizado por el gas es cero (W = 0) y todo el calor aumenta U",
+                    "La temperatura permanece constante",
+                    "La energía interna no puede cambiar"
+                ],
+                correct: 1
+            },
+            {
+                question: "La Ley Cero se llama 'cero' porque:",
+                options: [
+                    "Fue descubierta antes que las otras pero numerada después",
+                    "Es la menos importante de todas",
+                    "Se refiere a la temperatura cero absoluto",
+                    "Solo aplica cuando la temperatura es cero"
+                ],
+                correct: 0
+            },
+            {
+                question: "Cuando frotas tus manos rápidamente, se calientan. Esto es un ejemplo de:",
+                options: [
+                    "Transferencia de calor por conducción",
+                    "Conversión de trabajo mecánico (fricción) en energía interna (calor)",
+                    "Equilibrio térmico entre tus manos",
+                    "Proceso adiabático"
+                ],
+                correct: 1
+            },
+            {
+                question: "Un gas se comprime lentamente mientras está en contacto con un baño térmico (mantiene temperatura constante). Este es un proceso:",
+                options: [
+                    "Adiabático",
+                    "Isocórico",
+                    "Isotérmico",
+                    "Isobárico"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál de las siguientes afirmaciones sobre la energía es CORRECTA según la Primera Ley?",
+                options: [
+                    "La energía puede crearse a partir de la nada en procesos especiales",
+                    "La energía total del universo es constante (no se crea ni se destruye)",
+                    "El calor y el trabajo son tipos diferentes de energía que no se pueden interconvertir",
+                    "La energía siempre fluye de sistemas fríos a calientes"
+                ],
+                correct: 1
+            },
+            {
+                question: "Un refrigerador extrae calor del interior (frío) y lo expulsa al exterior (caliente). Esto NO viola la Primera Ley porque:",
+                options: [
+                    "El refrigerador crea energía fría",
+                    "El refrigerador consume energía eléctrica (trabajo) para mover el calor contra su flujo natural",
+                    "El calor siempre fluye naturalmente de frío a caliente",
+                    "La energía interna del refrigerador disminuye"
+                ],
+                correct: 1
+            }
+        ];
+
+        let quizAnswers = [];
+
+        const slideOrder = ['slide0', 'slideHistory', 'slide1', 'slide2', 'slide3', 'slide4', 'slide6', 'slide7', 'slide8', 'slide9', 'slide10'];
+        let currentSlideIndex = 0;
+
+        let exitCount = 0;
+        let maxExits = 3;
+        let isBlocked = false;
+        let trackingStarted = false;
+        let ignoreNextBlurForEmail = false; 
+
+        function nextSlide() {
+            if (currentSlideIndex === 0) {
+                setTimeout(() => {
+                    trackingStarted = true;
+                    console.log('Tracking activado');
+                }, 1000);
+            }
+
+            if (currentSlideIndex < slideOrder.length - 1) {
+                document.getElementById(slideOrder[currentSlideIndex]).classList.remove('active');
+                currentSlideIndex++;
+                document.getElementById(slideOrder[currentSlideIndex]).classList.add('active');
+                
+                if (slideOrder[currentSlideIndex] === 'slide9') {
+                    generateQuiz();
+                }
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                document.getElementById(slideOrder[currentSlideIndex]).classList.remove('active');
+                currentSlideIndex--;
+                document.getElementById(slideOrder[currentSlideIndex]).classList.add('active');
+            }
+        }
+        
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'F5') {
+                event.preventDefault();
+                alert("¡Alto! La recarga de la página está deshabilitada durante la evaluación.");
+            }
+            if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+                event.preventDefault();
+                alert("¡Alto! La recarga de la página está deshabilitada durante la evaluación.");
+            }
+        });
+
+        let isInteractingWithVideo = false;
+        let ignoreNextBlur = false;
+
+        document.addEventListener('mouseover', function(e) {
+            if (e.target.tagName === 'IFRAME' || e.target.closest('iframe')) {
+                isInteractingWithVideo = true;
+            }
+        });
+
+        document.addEventListener('mouseout', function(e) {
+            if (e.target.tagName === 'IFRAME' || e.target.closest('iframe')) {
+                setTimeout(() => { isInteractingWithVideo = false; }, 500);
+            }
+        });
+
+        document.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'IFRAME' || e.target.closest('.video-container')) {
+                ignoreNextBlur = true;
+                setTimeout(() => { ignoreNextBlur = false; }, 3000);
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (trackingStarted && document.hidden && !isBlocked) {
+                exitCount++;
+                handleExit();
+            }
+        });
+
+        window.addEventListener('blur', function() {
+            if (ignoreNextBlurForEmail) { return; }
+
+            if (trackingStarted && !isBlocked && !document.hidden && !isInteractingWithVideo && !ignoreNextBlur) {
+                setTimeout(() => {
+                    if (!document.hasFocus() && !isInteractingWithVideo) {
+                        exitCount++;
+                        handleExit();
+                    }
+                }, 100);
+            }
+        });
+
+        function handleExit() {
+            if (exitCount >= maxExits) {
+                blockEvaluation();
+            } else {
+                showWarning();
+            }
+        }
+
+        function showWarning() {
+            const remaining = maxExits - exitCount;
+            const warningPopup = document.getElementById('warningPopup');
+            
+            if (exitCount === 1) {
+                document.getElementById('warningText').textContent = 'Primera advertencia: Has salido de la página.';
+                document.getElementById('remainingExits').textContent = `⚠️ Te quedan ${remaining} oportunidades más.`;
+            } else if (exitCount === 2) {
+                document.getElementById('warningText').textContent = `⚠️ ÚLTIMA ADVERTENCIA: Has salido ${exitCount} veces.`;
+                document.getElementById('remainingExits').textContent = '🚨 ESTA ES TU ÚLTIMA OPORTUNIDAD. La próxima salida bloqueará la evaluación y despues no me diga porque la nota bajo.';
+            }
+            
+            warningPopup.classList.add('active');
+            setTimeout(() => { warningPopup.classList.remove('active'); }, 30000);
+        }
+
+        function blockEvaluation() {
+            isBlocked = true;
+            document.getElementById('finalExitCount').textContent = exitCount;
+            document.getElementById('blockOverlay').classList.add('active');
+            document.body.style.pointerEvents = 'none';
+            document.getElementById('blockOverlay').style.pointerEvents = 'all';
+            console.log('EVALUACIÓN BLOQUEADA - Salidas: ' + exitCount);
+        }
+
+        function flipCard(card) {
+            card.classList.toggle('flipped');
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.clientWidth;  
+            canvas.height = canvas.clientHeight;  
+
+            gameQuestions = shuffleArray(gameQuestionsBank);
+            
+            bird = { x: canvas.width * 0.15, y: canvas.height / 2, velocity: 0, radius: 20 };
+            pipes = [];
+            gameScore = 0;
+            frameCount = 0;
+            gameActive = false;
+            gameStarted = false;
+            currentQuestionIndex = 0;
+            gameAnswers = [];
+            pipesPassed = 0;
+            waitingForQuestion = false;
+            livesLost = 0;
+            difficultyLevel = 1;
+            pipeSpeed = 3;
+            pipeGap = 155;
+            
+            document.getElementById('gameScore').textContent = gameScore;
+            document.getElementById('questionsAnswered').textContent = '0';
+            document.getElementById('livesLost').textContent = '0';
+            document.getElementById('attemptNumber').textContent = attemptNumber;
+            document.getElementById('difficultyDisplay').textContent = difficultyLevel;
+            document.getElementById('startGameBtn').style.display = 'none';
+            document.getElementById('restartGameBtn').style.display = 'none';
+            document.getElementById('nextAfterGame').style.display = 'none';
+            
+            window.removeEventListener('keydown', preventSpaceScroll); 
+            window.addEventListener('keydown', preventSpaceScroll);
+            document.removeEventListener('keydown', jump); 
+            document.addEventListener('keydown', jump);
+            canvas.removeEventListener('click', jump); 
+            canvas.addEventListener('click', jump);
+            
+            drawInitialScreen();
+        }
+
+        function preventSpaceScroll(e) {
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+            }
+        }
+
+        function drawInitialScreen() {
+            ctx.fillStyle = '#1a0d0d'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#FF4500'; 
+            ctx.fill();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.fillStyle = '#000';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Q', bird.x, bird.y + 8); 
+            
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(255,255,255,0.8)';
+            ctx.shadowBlur = 15;
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText(`¡Intento ${attemptNumber}/2!`, canvas.width/2, canvas.height/2 - 80);
+            ctx.font = 'bold 28px Arial';
+            ctx.fillText('¡Presiona ESPACIO o CLIC para comenzar!', canvas.width/2, canvas.height/2 - 20);
+            ctx.font = '20px Arial';
+            ctx.fillText('Cada colisión = 1 pregunta', canvas.width/2, canvas.height/2 + 20);
+            ctx.fillText('La dificultad aumentará progresivamente', canvas.width/2, canvas.height/2 + 50);
+            ctx.shadowBlur = 0;
+        }
+
+        function jump(e) {
+            if (e.key === ' ' || e.keyCode === 32 || e.type === 'click') {
+                if (!gameStarted && !waitingForQuestion) {
+                    gameStarted = true;
+                    gameActive = true;
+                    playSound('start');
+                    gameLoop();
+                } else if (gameActive && !waitingForQuestion) {
+                    bird.velocity = -7;
+                    playSound('jump');
+                }
+            }
+        }
+
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);gainNode.connect(audioContext.destination);
+            
+            if (type === 'jump') {
+                oscillator.frequency.value = 400;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } else if (type === 'collision') {
+                oscillator.frequency.value = 100;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } else if (type === 'point') {
+                oscillator.frequency.value = 800;
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+            } else if (type === 'start') {
+                oscillator.frequency.value = 600;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+            
+            if (pipesPassed === 5 && difficultyLevel === 1) {
+                difficultyLevel = 2;
+                pipeSpeed = 4;
+                pipeGap = 150;
+                document.getElementById('difficultyDisplay').textContent = difficultyLevel;
+            } else if (pipesPassed === 10 && difficultyLevel === 2) {
+                difficultyLevel = 3;
+                pipeSpeed = 6;  
+                pipeGap = 130;  
+                document.getElementById('difficultyDisplay').textContent = difficultyLevel;
+            } else if (pipesPassed === 15 && difficultyLevel === 3) {
+                difficultyLevel = 4;
+                pipeSpeed = 8;
+                pipeGap = 100;
+                document.getElementById('difficultyDisplay').textContent = difficultyLevel;
+            }
+            
+            ctx.fillStyle = '#1a0d0d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            bird.velocity += 0.4;
+            bird.y += bird.velocity;
+            
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#FF4500'; 
+            ctx.fill();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.fillStyle = '#000';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Q', bird.x, bird.y + 8); 
+            
+            frameCount++;
+            
+            if (frameCount % Math.round(65 * (1000 / canvas.width)) === 0) {  
+                const minHeight = 30;
+                const maxHeight = canvas.height - pipeGap - minHeight;
+                const height = Math.random() * (maxHeight - minHeight) + minHeight;
+                
+                pipes.push({
+                    x: canvas.width,
+                    top: height,
+                    bottom: height + pipeGap,
+                    width: Math.round(60 * (canvas.width / 1000)), 
+                    passed: false
+                });
+            }
+
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                const pipe = pipes[i];
+                pipe.x -= pipeSpeed;
+                
+                ctx.fillStyle = '#B22222';
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+                ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+                
+                ctx.strokeStyle = '#8B0000';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.top);
+                ctx.strokeRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+                
+                if (bird.x + bird.radius > pipe.x &&  
+                    bird.x - bird.radius < pipe.x + pipe.width) {
+                    if (bird.y - bird.radius < pipe.top ||  
+                        bird.y + bird.radius > pipe.bottom) {
+                        handleCollision();
+                        return;
+                    }
+                }
+                
+                if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+                    pipe.passed = true;
+                    gameScore += 10;
+                    pipesPassed++;
+                    playSound('point');
+                    document.getElementById('gameScore').textContent = gameScore;
+                }
+                
+                if (pipe.x + pipe.width < 0) {
+                    pipes.splice(i, 1);
+                }
+            }
+            
+            if (bird.y - bird.radius < 0 || bird.y + bird.radius > canvas.height) {
+                handleCollision();
+                return;
+            }
+            
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.7)';
+            ctx.shadowBlur = 5;
+            ctx.font = 'bold 22px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Intento ${attemptNumber}/2`, 20, 40);
+            ctx.fillText('Puntos: ' + gameScore, 20, 70);
+            ctx.fillText('Pasados: ' + pipesPassed, 20, 100);
+            ctx.fillText('Nivel: ' + difficultyLevel, 20, 130);
+            ctx.fillText('Preguntas: ' + currentQuestionIndex + '/10', 20, 160);
+            ctx.shadowBlur = 0;
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function handleCollision() {
+            playSound('collision');  
+            livesLost++;
+            document.getElementById('livesLost').textContent = livesLost;
+            
+            if (currentQuestionIndex < gameQuestions.length) {
+                waitingForQuestion = true;
+                gameActive = false;
+                showGameQuestion();
+            } else {
+                gameActive = false;
+                endGame();
+            }
+        }
+
+        function showGameQuestion() {
+            const question = gameQuestions[currentQuestionIndex];
+            
+            document.getElementById('questionOverlay').classList.add('active');
+            document.getElementById('questionModal').classList.add('active');
+            document.getElementById('questionTitle').textContent = `Pregunta ${currentQuestionIndex + 1}/10`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsDiv = document.getElementById('questionOptions');
+            optionsDiv.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-option';
+                button.textContent = option;
+                button.onclick = () => answerGameQuestion(index);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function answerGameQuestion(selectedIndex) {
+            const question = gameQuestions[currentQuestionIndex];
+            gameAnswers.push({
+                question: question.question,
+                selected: selectedIndex,
+                correct: question.correct,
+                options: question.options,
+                isCorrect: selectedIndex === question.correct
+            });
+            
+            currentQuestionIndex++;
+            document.getElementById('questionsAnswered').textContent = currentQuestionIndex;
+            
+            document.getElementById('questionOverlay').classList.remove('active');
+            document.getElementById('questionModal').classList.remove('active');
+            
+            if (currentQuestionIndex < gameQuestions.length) {
+                bird.y = canvas.height / 2;
+                bird.velocity = 0;
+                pipes = [];
+                frameCount = 0;
+                waitingForQuestion = false;
+                gameActive = false;
+                gameStarted = false;
+                drawInitialScreen();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            gameStarted = false;
+            
+            const attemptResults = {
+                attemptNumber: attemptNumber,
+                score: gameScore,
+                pipesPassed: pipesPassed,
+                lives: livesLost,
+                answers: [...gameAnswers],
+                correctCount: gameAnswers.filter(a => a.isCorrect).length
+            };
+            
+            if (attemptNumber === 1) {
+                attempt1Results = attemptResults;
+                attemptNumber = 2;
+                document.getElementById('restartGameBtn').style.display = 'inline-block';
+                document.getElementById('restartGameBtn').textContent = '🎮 Segundo Intento';
+            } else {
+                attempt2Results = attemptResults;
+                document.getElementById('restartGameBtn').style.display = 'none';
+                document.getElementById('nextAfterGame').style.display = 'inline-block';
+            }
+            
+            generateGameFeedback();
+        }
+
+        function generateGameFeedback() {
+            const feedbackDiv = document.getElementById('gameFeedback');
+            let html = '<h3 style="text-align: center; font-size: 2em; color: #8B0000;">📊 Resultados del Desafío de la Partícula Térmica</h3>';
+            
+            if (attempt1Results) {
+                html += `<div style="background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%); color: white; padding: 25px; border-radius: 20px; margin: 25px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <h3 style="color: white; font-size: 1.8em; margin-bottom: 15px;">🎮 Intento 1</h3>
+                    <p style="color: white; font-size: 1.2em;">Puntuación: ${attempt1Results.score} puntos</p>
+                    <p style="color: white; font-size: 1.2em;">Pasajes logrados: ${attempt1Results.pipesPassed}</p>
+                    <p style="color: white; font-size: 1.2em;">Colisiones (Preguntas): ${attempt1Results.lives}</p>
+                    <p style="color: white; font-size: 1.3em;">Respuestas correctas: ${attempt1Results.correctCount}/10 ✅</p>
+                </div>`;
+                
+                html += '<h4 style="color: #8B0000; font-size: 1.5em; margin: 20px 0;">📝 Detalles - Intento 1:</h4>';
+                attempt1Results.answers.forEach((answer, index) => {
+                    html += `<div class="feedback-item ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                        <h4 style="font-size: 1.2em;">Pregunta ${index + 1}: ${answer.question}</h4>
+                        <p>Tu respuesta: ${answer.options[answer.selected]}</p>
+                        <p>Respuesta correcta: ${answer.options[answer.correct]}</p>
+                        <p style="font-size: 1.1em;">Resultado: ${answer.isCorrect ? '✅ Correcta' : '❌ Incorrecta'}</p>
+                    </div>`;
+                });
+            }
+            
+            if (attempt2Results) {
+                html += `<div style="background: linear-gradient(135deg, #FF4500 0%, #DC143C 100%); color: white; padding: 25px; border-radius: 20px; margin: 30px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <h3 style="color: white; font-size: 1.8em; margin-bottom: 15px;">🎮 Intento 2</h3>
+                    <p style="color: white; font-size: 1.2em;">Puntuación: ${attempt2Results.score} puntos</p>
+                    <p style="color: white; font-size: 1.2em;">Pasajes logrados: ${attempt2Results.pipesPassed}</p>
+                    <p style="color: white; font-size: 1.2em;">Colisiones (Preguntas): ${attempt2Results.lives}</p>
+                    <p style="color: white; font-size: 1.3em;">Respuestas correctas: ${attempt2Results.correctCount}/10 ✅</p>
+                </div>`;
+                
+                html += '<h4 style="color: #DC143C; font-size: 1.5em; margin: 20px 0;">📝 Detalles - Intento 2:</h4>';
+                attempt2Results.answers.forEach((answer, index) => {
+                    html += `<div class="feedback-item ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                        <h4 style="font-size: 1.2em;">Pregunta ${index + 1}: ${answer.question}</h4>
+                        <p>Tu respuesta: ${answer.options[answer.selected]}</p>
+                        <p>Respuesta correcta: ${answer.options[answer.correct]}</p>
+                        <p style="font-size: 1.1em;">Resultado: ${answer.isCorrect ? '✅ Correcta' : '❌ Incorrecta'}</p>
+                    </div>`;
+                });
+                
+                html += `<div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #f7fafc, #edf2f7); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <h3 style="color: #8B0000; font-size: 1.8em; margin-bottom: 20px;">📈 Comparación de Intentos</h3>
+                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.1em; color: #8B0000;">INTENTO 1</p>
+                            <p style="font-size: 1.5em; font-weight: bold; color: #B22222;">${attempt1Results.correctCount}/10 correctas</p>
+                            <p style="font-size: 1.2em; color: #8B0000;">${attempt1Results.score} puntos</p>
+                        </div>
+                        <div style="font-size: 3em; color: #8B0000;">vs</div>
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.1em; color: #DC143C;">INTENTO 2</p>
+                            <p style="font-size: 1.5em; font-weight: bold; color: #FF4500;">${attempt2Results.correctCount}/10 correctas</p>
+                            <p style="font-size: 1.2em; color: #DC143C;">${attempt2Results.score} puntos</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 1.4em; color: ${attempt2Results.correctCount >= attempt1Results.correctCount ? '#38a169' : '#DC143C'}; margin-top: 20px; font-weight: bold;">
+                        ${attempt2Results.correctCount > attempt1Results.correctCount ? '🎉 ¡Mejoraste! +' + (attempt2Results.correctCount - attempt1Results.correctCount) + ' respuestas correctas' : 
+                          attempt2Results.correctCount === attempt1Results.correctCount ? '👍 ¡Mantuviste tu nivel!' : 
+                          '💪 Sigue practicando, puedes mejorar'}
+                    </p>
+                </div>`;
+            } else {
+                html += `<div style="text-align: center; margin-top: 30px; padding: 25px; background: #fff3cd; border-radius: 15px; border: 2px solid #ffc107;">
+                    <p style="font-size: 1.3em; color: #856404;">⚠️ Falta el segundo intento</p>
+                    <p style="color: #856404;">Regresa al juego y completa tu segundo intento para ver la comparación completa.</p>
+                </div>`;
+            }
+            
+            feedbackDiv.innerHTML = html;
+        }
+
+        function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            let html = '';
+            
+            quizQuestions.forEach((q, index) => {
+                html += `<div class="quiz-question">
+                    <h4>${index + 1}. ${q.question}</h4>`;
+                
+                q.options.forEach((option, optIndex) => {
+                    html += `<label class="quiz-option">
+                        <input type="radio" name="q${index}" value="${optIndex}">
+                        ${option}
+                    </label>`;
+                });
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizAnswers = [];
+            
+            quizQuestions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const selectedIndex = selected ? parseInt(selected.value) : -1;
+                const isCorrect = selectedIndex === q.correct;
+                
+                if (isCorrect) {
+                    score++;
+                }
+
+                quizAnswers.push({
+                    question: q.question,
+                    selected: selectedIndex,
+                    correct: q.correct,
+                    options: q.options,
+                    isCorrect: isCorrect
+                });
+            });
+            
+            generateQuizFeedback(); 
+            updateStudentInfoOnResults();
+            showFinalResults(score);
+        }
+
+        function generateQuizFeedback() {
+            const feedbackDiv = document.getElementById('quizFeedback');
+            let html = '<h3 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 10px; margin-bottom: 20px;">📝 Retroalimentación del Cuestionario</h3>';
+            
+            quizAnswers.forEach((answer, index) => {
+                const resultClass = answer.isCorrect ? 'correct' : 'incorrect';
+                const resultText = answer.isCorrect ? '✅ Correcta' : '❌ Incorrecta';
+                
+                html += `<div class="feedback-item ${resultClass}">
+                    <h4 style="font-size: 1.2em;">${index + 1}. ${answer.question}</h4>
+                    <p style="font-size: 1em;">Tu respuesta: ${answer.selected !== -1 ? answer.options[answer.selected] : 'No respondida'}</p>
+                    <p style="font-size: 1.1em;">Resultado: ${resultText}</p>
+                </div>`;
+            });
+
+            feedbackDiv.innerHTML = html;
+        }
+
+        function showFinalResults(quizScore) {
+            const name = window.studentName || 'No especificado';
+            const course = window.studentCourse || 'No especificado';
+            const school = window.studentSchool || 'No especificado';
+
+            document.getElementById('studentNameDisplay').textContent = `Nombre: ${name}`;
+            document.getElementById('studentCourseDisplay').textContent = `Curso: ${course}`;
+            document.getElementById('studentSchoolDisplay').textContent = `Colegio: ${school}`;
+            
+            const exitWarning = exitCount >= maxExits ? '🚫 EVALUACIÓN BLOQUEADA' : exitCount > 0 ? '⚠️ Se detectaron salidas' : '✅ Sin salidas';
+            const exitColor = exitCount >= maxExits ? '#e53e3e' : exitCount > 0 ? '#ed8936' : '#48bb78';
+
+            document.getElementById('studentSchoolDisplay').insertAdjacentHTML('afterend',  
+                `<p style="font-size: 1.1em; color: ${exitColor}; margin: 10px 0; font-weight: bold;">
+                    ${exitWarning}
+                </p>
+                <p style="font-size: 1em; color: #333; margin: 5px 0;">
+                    📱 Salidas de la página: ${exitCount} veces
+                </p>`
+            );
+
+            let game1Correct = 0;
+            let game1Points = 0;
+            let game2Correct = 0;
+            let game2Points = 0;
+            
+            if (attempt1Results) {
+                game1Correct = attempt1Results.correctCount;
+                game1Points = attempt1Results.score;
+            }
+            
+            if (attempt2Results) {
+                game2Correct = attempt2Results.correctCount;
+                game2Points = attempt2Results.score;
+            }
+
+            document.getElementById('finalGameScore1').textContent = `${game1Correct}/10`;
+            document.getElementById('finalGamePoints1').textContent = `${game1Points} puntos`;
+            document.getElementById('gameProgress1').style.width = `${(game1Correct/10)*100}%`;
+            document.getElementById('gameProgress1').textContent = `${Math.round((game1Correct/10)*100)}%`;
+            
+            document.getElementById('finalGameScore2').textContent = `${game2Correct}/10`;
+            document.getElementById('finalGamePoints2').textContent = `${game2Points} puntos`;
+            document.getElementById('gameProgress2').style.width = `${(game2Correct/10)*100}%`;
+            document.getElementById('gameProgress2').textContent = `${Math.round((game2Correct/10)*100)}%`;
+            
+            document.getElementById('finalQuizScore').textContent = `${quizScore}/20`;
+            document.getElementById('quizProgress').style.width = `${(quizScore/20)*100}%`;
+            document.getElementById('quizProgress').textContent = `${Math.round((quizScore/20)*100)}%`;
+            
+            const bestGameCorrect = Math.max(game1Correct, game2Correct);
+            const totalScore = bestGameCorrect + quizScore;
+            const totalPossible = 30;
+            const percentage = Math.round((totalScore/totalPossible)*100);
+            
+            document.getElementById('totalScore').textContent = `${totalScore}/${totalPossible} (${percentage}%)`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🔥 ¡Maestro de la Termodinámica! Dominas el calor y la energía.';
+            } else if (percentage >= 75) {
+                message = '👏 ¡Muy bien! Eres un científico térmico prometedor.';
+            } else if (percentage >= 60) {
+                message = '👍 Buen trabajo, sigue estudiando termodinámica.';
+            } else {
+                message = '💪 Sigue estudiando, necesitas más energía de conocimiento.';
+            }
+            
+            document.getElementById('finalMessage').textContent = message;
+            
+            nextSlide();
+        }
+
+        function sendResultsByEmail() {
+            ignoreNextBlurForEmail = true;
+            
+            setTimeout(() => {
+                ignoreNextBlurForEmail = false;
+            }, 5000);
+
+            const studentName = document.getElementById('studentNameDisplay').textContent;
+            const studentCourse = document.getElementById('studentCourseDisplay').textContent;
+            const studentSchool = document.getElementById('studentSchoolDisplay').textContent;
+            
+            const game1 = document.getElementById('finalGameScore1').textContent;
+            const game2 = document.getElementById('finalGameScore2').textContent;
+            const quiz = document.getElementById('finalQuizScore').textContent;
+            const total = document.getElementById('totalScore').textContent;
+            const message = document.getElementById('finalMessage').textContent;
+            
+            const subject = "Resultados - Termodinámica: Ley Cero y Primera Ley";
+            const body = `
+RESULTADOS DEL ESTUDIANTE
+========================
+
+${studentName}
+${studentCourse}
+${studentSchool}
+
+MONITOREO DE ACTIVIDAD:
+-----------------------
+📱 Salidas de la página: ${exitCount} veces
+${exitCount >= maxExits ? '🚫 EVALUACIÓN BLOQUEADA POR EXCESO DE SALIDAS' : exitCount > 0 ? '⚠️ ADVERTENCIA: Se detectaron salidas sospechosas' : '✅ Sin salidas detectadas'}
+
+PUNTUACIONES:
+-------------
+🎮 Intento 1 del Juego: ${game1}
+🎮 Intento 2 del Juego: ${game2}
+📝 Cuestionario: ${quiz}
+✨ TOTAL: ${total}
+
+Evaluación: ${message}
+
+NOTA: Adjunto pantallazo de los resultados completos.
+            `;
+            
+            const mailtoLink = `mailto:andres.5050@hotmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            window.location.href = mailtoLink;
+            
+            alert('✅ Se abrirá tu programa de correo.\n\n⚠️ RECUERDA:\n1. Adjuntar el pantallazo de los resultados\n2. Enviar el correo\n\n¡Gracias!');
+        }
+
+        function toggleAnswer(element) {
+            const answer = element.querySelector('.answer-hidden');
+            if (answer.classList.contains('answer-shown')) {
+                answer.classList.remove('answer-shown');
+            } else {
+                answer.classList.add('answer-shown');
+            }
+        }
+    </script>
+</body>
+</html>
